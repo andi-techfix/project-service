@@ -1,3 +1,4 @@
+using Application.Commands;
 using Application.Services;
 using Domain.Repositories;
 using Infrastructure;
@@ -35,7 +36,7 @@ builder.Services.AddSingleton<IProjectRepository, ProjectRepository>();
 builder.Services.AddTransient<IMongoSeeder, MongoSeeder>();
 
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblyContaining<Application.Commands.CreateProjectCommand>());
+    cfg.RegisterServicesFromAssemblyContaining<CreateProjectCommand>());
 
 var userServiceUrl = Environment.GetEnvironmentVariable("USER_SERVICE_URL") ??
                      builder.Configuration.GetValue<string>("UserServiceUrl") ?? "http://localhost:5000";
