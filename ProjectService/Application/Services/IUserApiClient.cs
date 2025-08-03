@@ -2,5 +2,5 @@
 
 public interface IUserApiClient
 {
-    Task<IList<int>> GetUserIdsBySubscriptionTypeAsync(string subscriptionType);
+    Task<List<int>> GetUserIdsBySubscriptionTypeAsync(string subscriptionType);
 }

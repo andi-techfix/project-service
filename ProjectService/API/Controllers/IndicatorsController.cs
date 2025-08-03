@@ -1,4 +1,5 @@
 using Application.Queries;
+using Application.Queries.GetMostPopularIndicatorsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,6 @@ public class PopularIndicatorsController(IMediator mediator)
     public async Task<IActionResult> GetPopularIndicators(string subscriptionType)
     {
         var result = await mediator.Send(new GetPopularIndicatorsQuery(subscriptionType));
-        return Ok(new { indicators = result.Select(r => new { Name = r.Name, Used = r.Used }) });
+        return Ok(new { indicators = result.Select(r => new { r.Name, r.UsedCount }) });
     }
 }

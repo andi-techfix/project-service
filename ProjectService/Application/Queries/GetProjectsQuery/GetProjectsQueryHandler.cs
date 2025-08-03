@@ -2,7 +2,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using MediatR;
 
-namespace Application.Queries;
+namespace Application.Queries.GetProjectsQuery;
 
 public class GetProjectsQueryHandler(IProjectRepository repository)
     : IRequestHandler<GetProjectsQuery, IEnumerable<Project>>

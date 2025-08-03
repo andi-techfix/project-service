@@ -1,5 +1,10 @@
 using Application.Commands;
+using Application.Commands.CreateProjectCommand;
+using Application.Commands.DeleteProjectCommand;
+using Application.Commands.UpdateProjectCommand;
 using Application.Queries;
+using Application.Queries.GetProjectByIdQuery;
+using Application.Queries.GetProjectsQuery;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

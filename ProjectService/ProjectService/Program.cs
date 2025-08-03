@@ -1,11 +1,12 @@
 using Application.Commands;
+using Application.Commands.CreateProjectCommand;
 using Application.Services;
 using Domain.Repositories;
 using Infrastructure;
+using Infrastructure.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MongoDB.Driver;
-using ProjectService.Infrastructure.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var mongoConfig = builder.Configuration.GetSection(MongoDbConfiguration.SectionName).Get<MongoDbConfiguration>();
+var mongoConfig = builder.Configuration
+    .GetSection(MongoDbConfiguration.SectionName)
+    .Get<MongoDbConfiguration>();
 MongoDbConfiguration.ThrowIfInvalid(mongoConfig);
 
 var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING") ??
@@ -47,14 +50,12 @@ builder.Services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
 
 var app = builder.Build();
 
-// Seed MongoDB on startup
 using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<IMongoSeeder>();
     seeder.SeedAsync().GetAwaiter().GetResult();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

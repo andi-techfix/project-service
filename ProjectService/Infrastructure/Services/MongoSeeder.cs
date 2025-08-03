@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Infrastructure.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using ProjectService.Infrastructure.Models;
 
 namespace Infrastructure.Services;
 

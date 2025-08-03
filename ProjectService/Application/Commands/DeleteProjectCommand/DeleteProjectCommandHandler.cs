@@ -1,7 +1,7 @@
 using Domain.Repositories;
 using MediatR;
 
-namespace Application.Commands;
+namespace Application.Commands.DeleteProjectCommand;
 
 public class DeleteProjectCommandHandler(IProjectRepository projectRepository)
     : IRequestHandler<DeleteProjectCommand, bool>

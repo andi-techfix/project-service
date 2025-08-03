@@ -2,7 +2,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using MediatR;
 
-namespace Application.Queries;
+namespace Application.Queries.GetProjectByIdQuery;
 
 public class GetProjectByIdQueryHandler(IProjectRepository repository)
     : IRequestHandler<GetProjectByIdQuery, Project?>

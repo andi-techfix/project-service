@@ -1,7 +1,7 @@
 using Domain.Repositories;
 using MediatR;
 
-namespace Application.Commands;
+namespace Application.Commands.UpdateProjectCommand;
 
 public class UpdateProjectCommandHandler(IProjectRepository projectRepository)
     : IRequestHandler<UpdateProjectCommand, bool>
