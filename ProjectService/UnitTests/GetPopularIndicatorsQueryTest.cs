@@ -9,14 +9,66 @@ namespace UnitTests;
 
 public class GetPopularIndicatorsQueryHandlerTests
 {
-    private readonly Mock<IUserApiClient> _userApiClientMock = new();
-    private readonly Mock<IProjectRepository> _projectRepositoryMock = new();
+    private const string PremiumSubscription = "premium";
+    private const string BasicSubscription   = "basic";
+
+    private static readonly List<int> EmptyUserIds   = [];
+    private static readonly List<int> SampleUserIds  = [1, 2];
+    
+    private static readonly Indicator MA        = new() { Name = "MA" };
+    private static readonly Indicator BB        = new() { Name = "BB" };
+    private static readonly Indicator RSI       = new() { Name = "RSI" };
+    private static readonly Indicator Ichimoku  = new() { Name = "Ichimoku" };
+    
+    private static readonly List<Project> ProjectsForBasic =
+    [
+        new()
+        {
+            Charts =
+            [
+                new Chart
+                {
+                    Indicators = new List<Indicator>
+                    {
+                        MA, RSI, BB
+                    }
+                },
+
+                new Chart
+                {
+                    Indicators = new List<Indicator>
+                    {
+                        MA, BB
+                    }
+                }
+            ]
+        },
+        new()
+        {
+            Charts =
+            [
+                new Chart
+                {
+                    Indicators = new List<Indicator>
+                    {
+                        MA, Ichimoku
+                    }
+                }
+            ]
+        }
+    ];
+
+    private static readonly GetPopularIndicatorsQuery EmptyQuery = new(PremiumSubscription);
+    private static readonly GetPopularIndicatorsQuery BasicQuery = new(BasicSubscription);
+    
+    private readonly Mock<IUserApiClient>     _userApiClientMock = new();
+    private readonly Mock<IProjectRepository> _projectRepoMock   = new();
     private readonly GetPopularIndicatorsQueryHandler _handler;
 
     public GetPopularIndicatorsQueryHandlerTests()
     {
         _handler = new GetPopularIndicatorsQueryHandler(
-            _projectRepositoryMock.Object,
+            _projectRepoMock.Object,
             _userApiClientMock.Object
         );
     }
@@ -25,82 +77,33 @@ public class GetPopularIndicatorsQueryHandlerTests
     public async Task Handle_Should_ReturnEmptyList_When_NoUserIds()
     {
         // Arrange
-        const string subscriptionType = "premium";
         _userApiClientMock
-            .Setup(u => u.GetUserIdsBySubscriptionTypeAsync(subscriptionType))
-            .ReturnsAsync([]);
-
-        var query = new GetPopularIndicatorsQuery(subscriptionType);
+            .Setup(u => u.GetUserIdsBySubscriptionTypeAsync(PremiumSubscription))
+            .ReturnsAsync(EmptyUserIds);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(EmptyQuery, CancellationToken.None);
 
         // Assert
         result.Should().BeEmpty();
-        _userApiClientMock.Verify(u => u.GetUserIdsBySubscriptionTypeAsync(subscriptionType), Times.Once);
-        _projectRepositoryMock.Verify(r => r.GetProjectsByUserIdsAsync(It.IsAny<IEnumerable<int>>()), Times.Never);
+        _userApiClientMock.Verify(u => u.GetUserIdsBySubscriptionTypeAsync(PremiumSubscription), Times.Once);
+        _projectRepoMock.Verify(r => r.GetProjectsByUserIdsAsync(It.IsAny<IEnumerable<int>>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_Should_ReturnTopThreeIndicatorsOrderedByCountThenName_When_ProjectsExist()
     {
         // Arrange
-        const string subscriptionType = "basic";
-        var userIds = new List<int> { 1, 2 };
         _userApiClientMock
-            .Setup(u => u.GetUserIdsBySubscriptionTypeAsync(subscriptionType))
-            .ReturnsAsync(userIds);
-        
-        var projects = new List<Project>
-        {
-            new()
-            {
-                Charts =
-                [
-                    new Chart
-                    {
-                        Indicators = new List<Indicator>
-                        {
-                            new() { Name = "MA" },
-                            new() { Name = "RSI" },
-                            new() { Name = "BB" },
-                        }
-                    },
+            .Setup(u => u.GetUserIdsBySubscriptionTypeAsync(BasicSubscription))
+            .ReturnsAsync(SampleUserIds);
 
-                    new Chart
-                    {
-                        Indicators = new List<Indicator>
-                        {
-                            new() { Name = "MA" },
-                            new() { Name = "BB" },
-                        }
-                    }
-                ]
-            },
-            new()
-            {
-                Charts =
-                [
-                    new Chart
-                    {
-                        Indicators = new List<Indicator>
-                        {
-                            new() { Name = "MA" },
-                            new() { Name = "Ichimoku" },
-                        }
-                    }
-                ]
-            }
-        };
-
-        _projectRepositoryMock
-            .Setup(r => r.GetProjectsByUserIdsAsync(userIds))
-            .ReturnsAsync(projects);
-
-        var query = new GetPopularIndicatorsQuery(subscriptionType);
+        _projectRepoMock
+            .Setup(r => r.GetProjectsByUserIdsAsync(SampleUserIds))
+            .ReturnsAsync(ProjectsForBasic);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(BasicQuery, CancellationToken.None);
 
         // Assert
         result.Should().HaveCount(3);
@@ -111,7 +114,7 @@ public class GetPopularIndicatorsQueryHandlerTests
         result[2].Name.Should().Be("Ichimoku");
         result[2].UsedCount.Should().Be(1);
 
-        _userApiClientMock.Verify(u => u.GetUserIdsBySubscriptionTypeAsync(subscriptionType), Times.Once);
-        _projectRepositoryMock.Verify(r => r.GetProjectsByUserIdsAsync(userIds), Times.Once);
+        _userApiClientMock.Verify(u => u.GetUserIdsBySubscriptionTypeAsync(BasicSubscription), Times.Once);
+        _projectRepoMock.Verify(r => r.GetProjectsByUserIdsAsync(SampleUserIds), Times.Once);
     }
 }
