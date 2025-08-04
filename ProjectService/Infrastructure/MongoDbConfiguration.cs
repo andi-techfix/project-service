@@ -27,7 +27,7 @@ public record MongoDbConfiguration
         var credentials = !string.IsNullOrEmpty(options.User)
             ? $"{options.User}:{options.Password}@"
             : string.Empty;
-        // Compose host and port only; the database is selected via GetDatabase on IMongoClient
+        
         return $"mongodb://{credentials}{host}:{options.Port}";
     }
 }
